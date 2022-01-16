@@ -1,3 +1,4 @@
+```bash
 go build -o httpserver main.go
 ./httpserver
 
@@ -14,3 +15,4 @@ clientip:  127.0.0.1
 
 $ curl localhost:8080/healthz
 Healthz returns OK (200)
+```

@@ -1,0 +1,18 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: httpserver-gateway
+  namespace: httpserver
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:  # 使用https访问方式
+        number: 443
+        name: https
+        protocol: HTTPS
+      tls:
+        mode: SIMPLE   # 简单模式，单向TLS
+        credentialName: cantevenl-tls   # k8s secret的名称
+      hosts:
+        - "cantevenl.com"

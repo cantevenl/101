@@ -24,9 +24,18 @@ push: release
 	docker push registry.cn-chengdu.aliyuncs.com/cantevenl/httpserver:${tag}
 ```
 
+编译+打包
+```bash
+make build && make release
+```
+
+运行
+```bash
+docker run -itd --name httpserver -p 8080:8080 registry.cn-chengdu.aliyuncs.com/cantevenl/httpserver:v1.0
+```
 
 
-#也可以在镜像里面多段构建
+也可以在镜像里面多段构建
 ```bash
 FROM golang:1.16-alpine AS build
 RUN apk add --no-cache git

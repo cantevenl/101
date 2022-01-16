@@ -24,14 +24,17 @@ push: release
 	docker push registry.cn-chengdu.aliyuncs.com/cantevenl/httpserver:${tag}
 ```
 
-编译+打包
+编译+打包+上传镜像
 ```bash
-make build && make release
+make build && make release && make push
 ```
 
 运行
 ```bash
-docker run -itd --name httpserver -p 8080:8080 registry.cn-chengdu.aliyuncs.com/cantevenl/httpserver:v1.0
+docker run -itd -p 8080:8080 --name httpserver registry.cn-chengdu.aliyuncs.com/cantevenl/httpserver:v1.0
+
+$ curl localhost:8080/healthz
+Healthz returns OK (200)
 ```
 
 

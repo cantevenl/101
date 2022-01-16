@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cantevenl-httpserver-ingress
+  namespace: httpserver
+spec:
+  tls:
+    - hosts:
+        - cantevenl.com
+      secretName: cantevenl-tls
+  rules:
+    - host: cantevenl.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: cantevenl-httpserver-svc
+                port:
+                  number: 80

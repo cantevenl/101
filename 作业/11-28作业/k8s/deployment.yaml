@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cantevenl-httpserver
+  namespace: httpserver
+  labels:
+    app: httpserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: httpserver
+  strategy: #滚动更新策略
+    rollingUpdate:
+      maxSurge: 1 #在滚动更新时，可以有多少个额外的 Pod
+      maxUnavailable: 0 #在滚动更新时，可以忍受多少个 Pod无法提供服务
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+      labels:
+        app: httpserver
+    spec:
+      terminationGracePeriodSeconds: 30 #优雅结束
+      dnsPolicy: ClusterFirst
+      containers:
+        - name: httpserver
+          imagePullPolicy: IfNotPresent
+          image: registry.cn-chengdu.aliyuncs.com/cantevenl/httpserver:v2.0
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          env:  #env不会随着configmap的改变而改变
+            - name: MY_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MY_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: TZ
+              value: Asia/Shanghai
+            - name: LANG
+              value: C.UTF-8
+          resources:  #资源请求
+            limits:
+              cpu: 50m
+              memory: 100Mi
+            requests:
+              cpu: 50m
+              memory: 100Mi
+          startupProbe:
+            failureThreshold: 3 # 连续探测 3 次失败表示失败
+            initialDelaySeconds: 10 # 容器启动后 10s 开始探测
+            periodSeconds: 10 # 探测周期 每10s探测一次
+            successThreshold: 1 # 连续探测1次成功表示成功
+            timeoutSeconds: 2       # 容器必须在2s内给出回复，否则判定为失败
+            httpGet: #使用http get方式探活，访问httpserver的healthz路径
+              path: /healthz
+              port: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 5  # 容器启动后 5s 开始探测
+            periodSeconds: 10       # 探测周期 每10s探测一次
+            timeoutSeconds: 2       # 容器必须在2s内给出回复，否则判定为失败
+            successThreshold: 1     # 连续探测1次成功表示成功
+            failureThreshold: 3     # 连续探测 3 次失败表示失败
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10  # 容器启动后 10s 开始探测， 晚于readnessProbe
+            periodSeconds: 10       # 探测周期 每10s探测一次
+            timeoutSeconds: 2       # 容器必须在2s内给出回复，否则判定为失败
+            successThreshold: 1     # 连续探测1次成功表示成功
+            failureThreshold: 3     # 连续探测 3 次失败表示失败
+          volumeMounts: #值可以随着configmap的改变而改变，每一个key映射为一个文件
+            - mountPath: /usr/share/zoneinfo/Asia/Shanghai
+              name: tz-config
+            - mountPath: /etc/localtime
+              name: tz-config
+            - mountPath: /go/log
+              name: log
+              readOnly: false
+      imagePullSecrets: #镜像仓库密钥
+        - name: aliyun-registry
+      restartPolicy: Always  #重启策略
+      volumes:
+        - name: log
+          persistentVolumeClaim:
+            claimName: log-httpserver
+        - hostPath:
+            path: /usr/share/zoneinfo/Asia/Shanghai
+            type: ""
+          name: tz-config

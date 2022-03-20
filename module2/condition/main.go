@@ -20,6 +20,8 @@ func main() {
 		for {
 			q.Enqueue("a")
 			time.Sleep(time.Second * 2)
+			q.Enqueue("bb")
+			time.Sleep(time.Second * 2)
 		}
 	}()
 	for {

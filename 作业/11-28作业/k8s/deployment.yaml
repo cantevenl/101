@@ -98,7 +98,8 @@ spec:
         - name: log
           persistentVolumeClaim:
             claimName: log-httpserver
-        - hostPath:
+        - name: tz-config
+          hostPath:
             path: /usr/share/zoneinfo/Asia/Shanghai
             type: ""
-          name: tz-config
+

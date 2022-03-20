@@ -7,7 +7,8 @@ import (
 )
 
 func main() {
-	waitBySleep()
+	//waitBySleep()
+	waitByWG()
 }
 
 //

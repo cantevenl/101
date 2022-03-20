@@ -17,10 +17,10 @@ func main() {
 func loopFunc() {
 	lock := sync.Mutex{}
 	for i := 0; i < 3; i++ {
-		// go func(i int) {
-		lock.Lock()
-		defer lock.Unlock()
-		fmt.Println("loopFunc:", i)
-		// }(i)
+		go func(i int) {
+			lock.Lock()
+			defer lock.Unlock()
+			fmt.Println("loopFunc:", i)
+		}(i)
 	}
 }

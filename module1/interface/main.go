@@ -31,9 +31,23 @@ func (c *Car) getName() string {
 	return c.factory + "-" + c.model
 }
 
+type Animal struct {
+	Name string
+	Age  string
+}
+
+func (a *Animal) getName() string {
+	return a.Name + "$" + a.Age
+}
+
 func main() {
 	interfaces := []IF{}
 	h := new(Human)
+
+	var human1 IF
+	human1 = new(Human)
+	human1.getName()
+
 	h.firstName = "first"
 	h.lastName = "last"
 	interfaces = append(interfaces, h)
@@ -48,4 +62,7 @@ func main() {
 	p.vendor = "testVendor"
 	p.model = "testModel"
 	fmt.Println(p.getName())
+
+	a := Animal{"pig", "3"}
+	fmt.Println(a.getName())
 }
